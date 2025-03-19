@@ -1,3 +1,8 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -5,9 +10,12 @@ import java.util.Scanner;
 class App {
 
     private static final List<String> textLines = new ArrayList<>();
+    private static final String FILE_NAME = "text_data.txt";
 
     public static void main(String[] args) {
         System.out.println("Welcome to Simple Text Editor");
+
+        loadFromFile();
 
         try (Scanner scanner = new Scanner(System.in)) {
             while (true) {
@@ -15,7 +23,8 @@ class App {
                 System.out.println("2. Delete a line");
                 System.out.println("3. Edit a line");
                 System.out.println("4. View all lines");
-                System.out.println("5. Exit");
+                System.out.println("5. Save to File");
+                System.out.println("6. Exit");
                 System.out.print("Enter your choice: ");
 
                 int choice = scanner.nextInt();
@@ -25,7 +34,10 @@ class App {
                     case 2 -> deleteLine(scanner);
                     case 3 -> editLine(scanner);
                     case 4 -> viewLines();
-                    case 5 -> {
+                    case 5 -> saveToFile();
+                    case 6 -> {
+                        System.out.println("Saving data to file before exit...");
+                        saveToFile();
                         System.out.println("See you later gufer!...");
                         System.exit(0);
                     }
@@ -59,7 +71,7 @@ class App {
         } else {
             System.out.println("Invalid line number");
         }
-        
+
     }
 
     private static void editLine(Scanner scanner) {
@@ -82,14 +94,41 @@ class App {
     private static void viewLines() {
         if (textLines.isEmpty()) {
             System.out.println("No lines to display");
-        }else {
+        } else {
             System.out.println();
             System.out.println("Total lines: " + textLines.size());
             System.out.println("All lines are:");
-            for (int i =0; i < textLines.size(); i++) {
-                System.out.println((i+1) + ". " + textLines.get(i));
+            for (int i = 0; i < textLines.size(); i++) {
+                System.out.println((i + 1) + ". " + textLines.get(i));
             }
             System.out.println();
+        }
+    }
+
+    private static void saveToFile() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME))) {
+            for (String line : textLines) {
+                writer.write(line);
+                writer.newLine();
+            }
+            System.out.println("Data saved to file successfully");
+        } catch (Exception e) {
+            System.out.println("An error occurred while saving data to file: " + e.getMessage());
+        }
+    }
+
+    private static void loadFromFile() {
+        File file = new File(FILE_NAME);
+        if (file.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    textLines.add(line);
+                }
+                System.out.println("Data loaded from file successfully");
+            } catch (Exception e) {
+                System.out.println("An error occurred while loading data from file: " + e.getMessage());
+            }
         }
     }
 }
